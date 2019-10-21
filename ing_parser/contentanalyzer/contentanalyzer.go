@@ -22,8 +22,8 @@ func (e *argError) Error() string {
 	return fmt.Sprintf("%s - %s", e.arg, e.prob)
 }
 
-// AnalyzeContent analyses product ingredients
-func AnalyzeContent(s string) (*[]Ingredient, error) {
+// AnalyzeIngredients analyses product ingredients
+func AnalyzeIngredients(s string) (*[]Ingredient, error) {
 	bracketsBalanced, _ := brackets.Bracket(s)
 	if !bracketsBalanced {
 		log.Println("ALERT! Brackets are not balanced!")
@@ -31,7 +31,10 @@ func AnalyzeContent(s string) (*[]Ingredient, error) {
 	}
 	letters := strings.Split(s, "")
 	ings := make([]Ingredient, 0)
-	parse(letters, &ings)
+	err := parse(letters, &ings)
+	if err != nil {
+		return nil, err
+	}
 	// json, _ := json.Marshal(ings)
 	// ioutil.WriteFile("./prod_contents.json", json, 0644)
 	return &ings, nil
@@ -45,7 +48,7 @@ func parse(letters []string, ings *[]Ingredient) error {
 	}
 	curWord := ""
 	for i := 0; i < len(letters); i++ {
-		// curWord = reg.ReplaceAllString(curWord, "FUCK")
+		// curWord = reg.ReplaceAllString(curWord, "")
 		if letters[i] == "," || letters[i] == "." || i == len(letters)-1 {
 			if i == len(letters)-1 || len(curWord) <= 2 {
 				curWord += letters[i]
@@ -58,6 +61,7 @@ func parse(letters []string, ings *[]Ingredient) error {
 			curWord = ""
 			continue
 		}
+
 		if letters[i] == "(" {
 			closePos := findClosingParen(letters, i+1)
 			substring := letters[i+1 : closePos-1]
