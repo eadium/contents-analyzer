@@ -1,0 +1,96 @@
+package contentanalyzer
+
+import (
+	"fmt"
+	"ing_parser/brackets"
+	"log"
+	"regexp"
+	"strings"
+)
+
+type Ingredient struct {
+	Name        string      `json: name`
+	Ingredients interface{} `json: ingredients`
+}
+
+type argError struct {
+	arg  string
+	prob string
+}
+
+func (e *argError) Error() string {
+	return fmt.Sprintf("%s - %s", e.arg, e.prob)
+}
+
+// AnalyzeContent analyses product ingredients
+func AnalyzeContent(s string) (*[]Ingredient, error) {
+	bracketsBalanced, _ := brackets.Bracket(s)
+	if !bracketsBalanced {
+		log.Println("ALERT! Brackets are not balanced!")
+		return nil, &argError{"SYNTAX_ERROR", "Brackets are not balanced"}
+	}
+	letters := strings.Split(s, "")
+	ings := make([]Ingredient, 0)
+	parse(letters, &ings)
+	// json, _ := json.Marshal(ings)
+	// ioutil.WriteFile("./prod_contents.json", json, 0644)
+	return &ings, nil
+}
+
+// Parse parses
+func parse(letters []string, ings *[]Ingredient) error {
+	reg, err := regexp.Compile("[^a-zA-Z0-9А-Яа-я[:space:]]+")
+	if err != nil {
+		return err
+	}
+	curWord := ""
+	for i := 0; i < len(letters); i++ {
+		// curWord = reg.ReplaceAllString(curWord, "FUCK")
+		if letters[i] == "," || letters[i] == "." || i == len(letters)-1 {
+			if i == len(letters)-1 || len(curWord) <= 2 {
+				curWord += letters[i]
+				if reg.MatchString(curWord) == true {
+					curWord = ""
+					continue
+				}
+			}
+			*ings = append(*ings, Ingredient{strings.TrimSpace(curWord), nil})
+			curWord = ""
+			continue
+		}
+		if letters[i] == "(" {
+			closePos := findClosingParen(letters, i+1)
+			substring := letters[i+1 : closePos-1]
+			subIngs := make([]Ingredient, 0)
+			err := parse(substring, &subIngs)
+			if err != nil {
+				return err
+			}
+			*ings = append(*ings, Ingredient{strings.TrimSpace(curWord), subIngs})
+			if i < len(letters)-1 {
+				i = closePos - 1
+			} else {
+				i = closePos + 1
+			}
+			curWord = ""
+		}
+		curWord += letters[i]
+
+	}
+	return nil
+}
+
+func findClosingParen(text []string, openPos int) int {
+	closePos := openPos
+	counter := 1
+	for counter > 0 {
+		c := text[closePos]
+		closePos++
+		if c == "(" {
+			counter++
+		} else if c == ")" {
+			counter--
+		}
+	}
+	return closePos
+}
