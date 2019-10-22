@@ -10,8 +10,8 @@ import (
 )
 
 type Ingredient struct {
-	Name        string      `json: "name"`
-	Ingredients interface{} `json: "ingredients"`
+	Name        string        `json: "name"`
+	Ingredients *[]Ingredient `json: "ingredients"`
 }
 
 type argError struct {
