@@ -1,16 +1,17 @@
 package analyzer
 
 import (
-	"github.com/eadium/contents-analyzer/brackets"
 	"fmt"
 	"log"
 	"regexp"
 	"strings"
+
+	"github.com/eadium/contents-analyzer/brackets"
 )
 
 type Ingredient struct {
-	Name        string      `json: name`
-	Ingredients interface{} `json: ingredients`
+	Name        string      `json: "name"`
+	Ingredients interface{} `json: "ingredients"`
 }
 
 type argError struct {
