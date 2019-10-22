@@ -71,7 +71,7 @@ func parse(letters []string, ings *[]Ingredient) error {
 			if err != nil {
 				return err
 			}
-			*ings = append(*ings, Ingredient{strings.TrimSpace(curWord), subIngs})
+			*ings = append(*ings, Ingredient{strings.TrimSpace(curWord), &subIngs})
 			if i < len(letters)-1 {
 				i = closePos - 1
 			} else {
