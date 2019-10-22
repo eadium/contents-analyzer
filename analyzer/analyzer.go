@@ -1,7 +1,7 @@
 package analyzer
 
 import (
-	"contentanalyzer/brackets"
+	"github.com/eadium/contents-analyzer/brackets"
 	"fmt"
 	"log"
 	"regexp"
