@@ -44,13 +44,15 @@ func Analyze(s string) (*[]Ingredient, error) {
 // Parse parses
 func parse(letters []string, ings *[]Ingredient) error {
 	reg, err := regexp.Compile("[^a-zA-Z0-9А-Яа-я[:space:]]+")
-	if err != nil {
+	bracketsReg, err1 := regexp.Compile("[)]+")
+	separatorReg, err2 := regexp.Compile("[,.]+")
+	recursiveReg, err3 := regexp.Compile("[(:]+")
+	if err != nil || err1 != nil || err2 != nil || err3 != nil {
 		return err
 	}
 	curWord := ""
 	for i := 0; i < len(letters); i++ {
-		// curWord = reg.ReplaceAllString(curWord, "")
-		if letters[i] == "," || letters[i] == "." || i == len(letters)-1 {
+		if separatorReg.MatchString(letters[i]) || i == len(letters)-1 {
 			if i == len(letters)-1 || len(curWord) <= 2 {
 				curWord += letters[i]
 				if reg.MatchString(curWord) == true {
@@ -58,12 +60,12 @@ func parse(letters []string, ings *[]Ingredient) error {
 					continue
 				}
 			}
-			*ings = append(*ings, Ingredient{strings.TrimSpace(curWord), nil})
+			*ings = append(*ings, Ingredient{strings.TrimSpace(bracketsReg.ReplaceAllString(curWord, "")), nil})
 			curWord = ""
 			continue
 		}
 
-		if letters[i] == "(" {
+		if recursiveReg.MatchString(letters[i]) {
 			closePos := findClosingParen(letters, i+1)
 			substring := letters[i+1 : closePos-1]
 			subIngs := make([]Ingredient, 0)
@@ -71,7 +73,7 @@ func parse(letters []string, ings *[]Ingredient) error {
 			if err != nil {
 				return err
 			}
-			*ings = append(*ings, Ingredient{strings.TrimSpace(curWord), &subIngs})
+			*ings = append(*ings, Ingredient{strings.TrimSpace(bracketsReg.ReplaceAllString(curWord, "")), &subIngs})
 			if i < len(letters)-1 {
 				i = closePos - 1
 			} else {
@@ -80,7 +82,6 @@ func parse(letters []string, ings *[]Ingredient) error {
 			curWord = ""
 		}
 		curWord += letters[i]
-
 	}
 	return nil
 }
