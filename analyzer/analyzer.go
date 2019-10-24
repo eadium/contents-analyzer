@@ -44,11 +44,20 @@ func Analyze(s string) (*[]Ingredient, error) {
 // Parse parses
 func parse(letters []string, ings *[]Ingredient) error {
 	reg, err := regexp.Compile("[^a-zA-Z0-9А-Яа-я[:space:]]+")
+	if err != nil {
+		log.Fatal(err)
+	}
 	bracketsReg, err1 := regexp.Compile("[)]+")
-	separatorReg, err2 := regexp.Compile("[,.:]+")
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+	separatorReg, err2 := regexp.Compile("[,.:;]+")
+	if err2 != nil {
+		log.Fatal(err2)
+	}
 	recursiveReg, err3 := regexp.Compile("[(]+")
-	if err != nil || err1 != nil || err2 != nil || err3 != nil {
-		return err
+	if err3 != nil {
+		log.Fatal(err3)
 	}
 	curWord := ""
 	for i := 0; i < len(letters); i++ {
