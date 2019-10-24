@@ -45,8 +45,8 @@ func Analyze(s string) (*[]Ingredient, error) {
 func parse(letters []string, ings *[]Ingredient) error {
 	reg, err := regexp.Compile("[^a-zA-Z0-9А-Яа-я[:space:]]+")
 	bracketsReg, err1 := regexp.Compile("[)]+")
-	separatorReg, err2 := regexp.Compile("[,.]+")
-	recursiveReg, err3 := regexp.Compile("[(:]+")
+	separatorReg, err2 := regexp.Compile("[,.:]+")
+	recursiveReg, err3 := regexp.Compile("[(]+")
 	if err != nil || err1 != nil || err2 != nil || err3 != nil {
 		return err
 	}
