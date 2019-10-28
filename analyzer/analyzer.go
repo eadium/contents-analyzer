@@ -51,7 +51,7 @@ func parse(letters []string, ings *[]Ingredient) error {
 	if err1 != nil {
 		log.Fatal(err1)
 	}
-	separatorReg, err2 := regexp.Compile("[,.:;иИ]+")
+	separatorReg, err2 := regexp.Compile("[,.:;]+")
 	if err2 != nil {
 		log.Fatal(err2)
 	}
